@@ -10,11 +10,8 @@
 <style>
 body {
     margin: 0;
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    background-color: #212121;
     font-family: 'Courier New', monospace;
+    background-color: #212121;
 }
 
 #typing-container {
@@ -39,6 +36,13 @@ body {
     51%, 100% { opacity: 0; }
 }
 
+#ide-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    transition: filter 0.3s ease;
+}
+
 .main-container {
     display: flex;
     flex: 1;
@@ -49,8 +53,8 @@ body {
     width: 50%;
     display: flex;
     flex-direction: column;
-    box-sizing: border-box;
     padding: 5px;
+    box-sizing: border-box;
     position: relative;
 }
 
@@ -97,7 +101,6 @@ body {
 .CodeMirror {
     height: 100%;
     font-size: 14px;
-    overflow: hidden;
 }
 
 .CodeMirror-scroll {
@@ -144,30 +147,114 @@ iframe {
     background: white;
 }
 
+#preview-btn {
+    display: none;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    font-family: 'Courier New', monospace;
+    background: #212121;
+    color: white;
+    border: 1px solid white;
+    padding: 10px 15px;
+    font-size: 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    transition-duration: 0.3s;
+    z-index: 10;
+}
+#preview-btn:focus{
+    background-color: white;
+    color: #212121;
+    letter-spacing: 1.5px;
+    transform: scale(1.1);
+
+
+
+}
+
+#preview-btn:hover{
+    background-color: white;
+    color: #212121;
+    letter-spacing: 1.5px;
+    transform: scale(1.1);
+
+
+
+}
+#preview-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    backdrop-filter: blur(0);
+    background: rgba(0,0,0,0.3);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease, backdrop-filter 0.3s ease;
+    z-index: 19;
+}
+
+#preview-overlay.show {
+    opacity: 1;
+    pointer-events: all;
+    backdrop-filter: blur(5px);
+}
+
+#preview-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.8);
+    width: 80%;
+    height: 80%;
+    z-index: 20;
+    opacity: 0;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+#preview-modal.show {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+}
+
+#preview-modal iframe {
+    width: 100%;
+    height: 100%;
+    border-radius: 10px;
+    background: white;
+}
+
+#preview-modal span.close {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    font-size: 2rem;
+    color: white;
+    cursor: pointer;
+}
+
 @media (max-width: 720px) {
     .main-container {
         flex-direction: column;
     }
 
-    .editor-container,
-    .preview-container {
+    .editor-container {
         width: 100%;
-        height: 50%;
-        padding: 5px;
+        flex: 1;
+        min-height: 0;
     }
 
-    .editor {
-        position: relative;
-        top: 0;
-        height: calc(100% - 40px);
+    .preview-container {
+        display: none;
     }
 
-    iframe {
-        height: 100%;
+    #preview-btn {
+        display: block;
     }
 }
 </style>
-
 </head>
 <body>
 
@@ -175,27 +262,31 @@ iframe {
   IDE online: <span id="word"></span><span id="cursor"></span>
 </div>
 
+<div id="ide-container">
 <div class="main-container">
-
   <div class="editor-container">
-
     <div class="tabs">
       <div class="tab active" data-editor="html">HTML</div>
       <div class="tab" data-editor="css">CSS</div>
       <div class="tab" data-editor="js">JS</div>
     </div>
-
     <div id="htmlEditor" class="editor active"></div>
     <div id="cssEditor" class="editor"></div>
     <div id="jsEditor" class="editor"></div>
-
   </div>
 
   <div class="preview-container">
     <span class="title">Preview</span>
     <iframe id="preview"></iframe>
   </div>
+</div>
+</div>
 
+<button id="preview-btn">Mostrar Preview</button>
+<div id="preview-overlay"></div>
+<div id="preview-modal">
+    <span class="close">&times;</span>
+    <iframe id="preview-modal-iframe"></iframe>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.8/codemirror.min.js"></script>
@@ -214,7 +305,6 @@ const htmlEditor = CodeMirror(document.getElementById("htmlEditor"), {
     matchBrackets: true,
     viewportMargin: Infinity
 });
-
 const cssEditor = CodeMirror(document.getElementById("cssEditor"), {
     value: "h1 { color: black; }",
     mode: "css",
@@ -223,7 +313,6 @@ const cssEditor = CodeMirror(document.getElementById("cssEditor"), {
     matchBrackets: true,
     viewportMargin: Infinity
 });
-
 const jsEditor = CodeMirror(document.getElementById("jsEditor"), {
     value: "console.log('Hello World!');",
     mode: "javascript",
@@ -234,14 +323,12 @@ const jsEditor = CodeMirror(document.getElementById("jsEditor"), {
 });
 
 const preview = document.getElementById("preview");
-
 function updatePreview() {
     const html = htmlEditor.getValue();
     const css  = "<style>" + cssEditor.getValue() + "</style>";
     const js   = "<script>" + jsEditor.getValue() + "<\/script>";
     preview.srcdoc = html + css + js;
 }
-
 htmlEditor.on("change", updatePreview);
 cssEditor.on("change", updatePreview);
 jsEditor.on("change", updatePreview);
@@ -249,16 +336,12 @@ updatePreview();
 
 const tabs = document.querySelectorAll(".tab");
 const editors = { html: htmlEditor, css: cssEditor, js: jsEditor };
-
 tabs.forEach(tab => {
     tab.addEventListener("click", () => {
         document.querySelector(".tab.active").classList.remove("active");
         tab.classList.add("active");
-
         document.querySelector(".editor.active").classList.remove("active");
-        const editorDiv = document.getElementById(tab.dataset.editor + "Editor");
-        editorDiv.classList.add("active");
-
+        document.getElementById(tab.dataset.editor + "Editor").classList.add("active");
         setTimeout(() => editors[tab.dataset.editor].refresh(), 50);
     });
 });
@@ -272,35 +355,43 @@ const wordElement = document.getElementById("word");
 let currentWord = 0;
 let currentChar = 0;
 let typing = true;
-
 function type() {
     const wordObj = words[currentWord];
     const word = wordObj.text;
     wordElement.style.color = wordObj.color;
-
     if (typing) {
         wordElement.textContent += word[currentChar];
         currentChar++;
-        if (currentChar === word.length) {
-            typing = false;
-            setTimeout(type, 1000);
-        } else {
-            setTimeout(type, 200);
-        }
+        if (currentChar === word.length) { typing = false; setTimeout(type, 1000); }
+        else setTimeout(type, 200);
     } else {
         wordElement.textContent = wordElement.textContent.slice(0, -1);
         currentChar--;
-        if (currentChar === 0) {
-            typing = true;
-            currentWord = (currentWord + 1) % words.length;
-            setTimeout(type, 500);
-        } else {
-            setTimeout(type, 100);
-        }
+        if (currentChar === 0) { typing = true; currentWord = (currentWord + 1) % words.length; setTimeout(type, 500); }
+        else setTimeout(type, 100);
     }
 }
-
 type();
+
+const previewBtn = document.getElementById("preview-btn");
+const previewModal = document.getElementById("preview-modal");
+const previewModalIframe = document.getElementById("preview-modal-iframe");
+const previewOverlay = document.getElementById("preview-overlay");
+const closeModal = previewModal.querySelector(".close");
+
+previewBtn.addEventListener("click", () => {
+    previewOverlay.classList.add("show");
+    previewModal.classList.add("show");
+    previewModalIframe.srcdoc = preview.srcdoc;
+});
+
+function closePreview() {
+    previewModal.classList.remove("show");
+    previewOverlay.classList.remove("show");
+}
+
+closeModal.addEventListener("click", closePreview);
+previewOverlay.addEventListener("click", closePreview);
 </script>
 
 </body>
