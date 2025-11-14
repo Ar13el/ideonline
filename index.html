@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>IDE Online – HTML CSS JS</title>
 
-<!-- CodeMirror -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.8/codemirror.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.8/theme/monokai.min.css">
 
@@ -19,7 +18,6 @@
     font-family: 'Courier New', monospace;
   }
 
-  /* ==== TÍTULO ANIMADO ==== */
   #typing-container {
     text-align: center;
     margin: 10px 0;
@@ -42,14 +40,12 @@
     51%, 100% { opacity: 0; }
   }
 
-  /* ==== CONTENEDOR PRINCIPAL ==== */
   .main-container {
     display: flex;
     flex: 1;
     overflow: hidden;
   }
 
-  /* ==== PANEL DE EDICIÓN ==== */
   .editor-container {
     width: 50%;
     display: flex;
@@ -58,7 +54,6 @@
     padding: 5px;
   }
 
-  /* ==== TABS ==== */
   .tabs {
     display: flex;
     background: #111;
@@ -96,7 +91,6 @@
     font-size: 14px;
   }
 
-  /* ==== PREVIEW ==== */
   .preview-container {
     width: 50%;
     display: flex;
@@ -121,32 +115,26 @@
 </head>
 <body>
 
-<!-- ==== TÍTULO ANIMADO ==== -->
 <div id="typing-container">
   IDE online: <span id="word"></span><span id="cursor"></span>
 </div>
 
-<!-- ==== CONTENEDOR PRINCIPAL ==== -->
 <div class="main-container">
 
-  <!-- PANEL IZQUIERDO: EDITOR -->
   <div class="editor-container">
 
-    <!-- TABS -->
     <div class="tabs">
       <div class="tab active" data-editor="html">HTML</div>
       <div class="tab" data-editor="css">CSS</div>
       <div class="tab" data-editor="js">JS</div>
     </div>
 
-    <!-- EDITORES -->
     <div id="htmlEditor" class="editor active"></div>
     <div id="cssEditor" class="editor"></div>
     <div id="jsEditor" class="editor"></div>
 
   </div>
 
-  <!-- PANEL DERECHO: PREVIEW -->
   <div class="preview-container">
     <span class="title">Preview</span>
     <iframe id="preview"></iframe>
@@ -154,7 +142,6 @@
 
 </div>
 
-<!-- ==== CodeMirror JS ==== -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.8/codemirror.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.8/mode/xml/xml.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.8/mode/htmlmixed/htmlmixed.min.js"></script>
@@ -163,9 +150,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.8/addon/edit/matchbrackets.min.js"></script>
 
 <script>
-  /* ==== Inicialización de CodeMirror ==== */
   const htmlEditor = CodeMirror(document.getElementById("htmlEditor"), {
-    value: "<h1>Hola mundo</h1>",
+    value: "<h1>Hello World!</h1>",
     mode: "htmlmixed",
     theme: "monokai",
     lineNumbers: true,
@@ -173,7 +159,7 @@
   });
 
   const cssEditor = CodeMirror(document.getElementById("cssEditor"), {
-    value: "h1 { color: blue; }",
+    value: "h1 { color: black; }",
     mode: "css",
     theme: "monokai",
     lineNumbers: true,
@@ -181,7 +167,7 @@
   });
 
   const jsEditor = CodeMirror(document.getElementById("jsEditor"), {
-    value: "console.log('Hola mundo');",
+    value: "console.log('Hello World!');",
     mode: "javascript",
     theme: "monokai",
     lineNumbers: true,
@@ -202,7 +188,6 @@
   jsEditor.on("change", updatePreview);
   updatePreview();
 
-  /* ==== Manejo de TABS con refresh ==== */
   const tabs = document.querySelectorAll(".tab");
   const editors = {
     html: htmlEditor,
@@ -219,12 +204,10 @@
       const editorDiv = document.getElementById(tab.dataset.editor + "Editor");
       editorDiv.classList.add("active");
 
-      // Refrescar el editor para que se dibuje bien al mostrarse
       setTimeout(() => editors[tab.dataset.editor].refresh(), 50);
     });
   });
 
-  /* ==== Texto animado ==== */
   const words = [
     { text: "HTML", color: "#FF6700" },
     { text: "CSS", color: "#2196F3" },
